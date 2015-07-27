@@ -1,4 +1,3 @@
-//https://www.hackerrank.com/challenges/similarpair
 #include <cmath>
 #include <cstdio>
 #include <vector>
@@ -6,6 +5,7 @@
 #include <algorithm>
 #include <list>
 #include <stack>
+#include <set>
 using namespace std;
 
 struct TreeNode {
@@ -29,18 +29,17 @@ void insertToTree(TreeNode** root, int parent, int child) {
     } else {
         // post order traversal the tree
         stack<TreeNode*> s;
-        list<int> list;
+        set<int> set;
         TreeNode* pCur = *root;
         TreeNode* pLastVisit = NULL;
         while (pCur) {
             s.push(pCur);
-            list.push_back(pCur->data);
+            set.insert(pCur->data);
             pCur = pCur->pLeft;
         }
         while (!s.empty()) {
             pCur = s.top();
             s.pop();
-            list.pop_back();
             
             if (!pCur->pRight || pCur->pRight == pLastVisit) {
                 //insert
@@ -50,27 +49,26 @@ void insertToTree(TreeNode** root, int parent, int child) {
                     } else {
                         pCur->pRight = pNode;
                     }
-                    for (auto it = list.begin(), end = list.end(); it != end; it++) {
-                        if (abs((*it) - child) <= T) {
-                            TOTAL++;
-                        }
-                    }
-                    if (abs(parent-child) <=T) {
+                    auto lower = set.lower_bound(child - T);
+                    auto upper = set.upper_bound(child + T);
+                    for (; lower != upper; lower++) {
                         TOTAL++;
                     }
+                    /*if (abs(parent-child) <=T) {
+                        TOTAL++;
+                    }*/
                     return;
                 }
                 
                 pLastVisit = pCur;
-                
+                set.erase(pCur->data);
             }
             else {
                 s.push(pCur);
-                list.push_back(pCur->data);
                 pCur = pCur->pRight;
                 while (pCur) {
                     s.push(pCur);
-                    list.push_back(pCur->data);
+                    set.insert(pCur->data);
                     pCur = pCur->pLeft;                    
                 }
             }
